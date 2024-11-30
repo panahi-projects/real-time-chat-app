@@ -14,6 +14,13 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log(`User is connected with id: ${socket.id}`);
+
+  socket.on("client_ready", (data) => {
+    console.log(data);
+  });
+  socket.on("new_user", (data) => {
+    console.log("new user added: ", data);
+  });
 });
 
 server.listen(PORT, () => {
