@@ -21,6 +21,10 @@ io.on("connection", (socket) => {
   socket.on("new_user", (data) => {
     console.log("new user added: ", data);
   });
+  socket.on("send_message", (msg) => {
+    console.log("Message received:", msg);
+    socket.broadcast.emit("receive_message", msg);
+  });
 });
 
 server.listen(PORT, () => {

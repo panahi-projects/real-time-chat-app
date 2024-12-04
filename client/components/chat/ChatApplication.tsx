@@ -15,25 +15,17 @@ const ChatApplication = () => {
   const user = useRef<User>(null);
   // State for input field
   const [input, setInput] = useState<string>("");
-  const [chat, setChat] = useState<ChatMessage[]>([
-    {
-      content: "Hello Alaki",
-      type: "text",
-      user: {
-        id: "0",
-        name: "guest",
-      },
-    },
-    {
-      content: "Hi guest",
-      type: "text",
-      user: {
-        id: "1",
-        name: "Alaki",
-      },
-    },
-  ]);
+  const [chat, setChat] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState([]);
+
+  useEffect(() => {
+    socket.on("receive_message", (msg) => {
+      setChat((prev) => [...prev, msg]);
+    });
+    return () => {
+      socket.off("receive_message");
+    };
+  });
 
   useEffect(() => {
     socket.emit("client_ready", "Hello from client");
@@ -43,7 +35,7 @@ const ChatApplication = () => {
       {user.current ? (
         <>
           <Chat user={user.current} chat={chat} typing={typing} />
-          <Input />
+          <Input setChat={setChat} user={user.current} socket={socket} />
         </>
       ) : (
         <Signup user={user} socket={socket} input={input} setInput={setInput} />

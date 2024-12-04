@@ -3,21 +3,14 @@ import { Message, ServerMessage, Typing } from "./Messages";
 import { User } from "./ChatApplication";
 
 export interface ChatMessage {
-  user: {
-    id: string;
-    name: string;
-  } | null;
+  user: User | null;
   content: string;
   type: "text" | "user" | "server" | null;
   own?: boolean; // Added dynamically in the component
 }
-
 interface ChatProps {
   chat: ChatMessage[];
-  user: {
-    id: string;
-    name?: string;
-  };
+  user: User;
   typing: User[]; // Array of usernames who are typing
 }
 
@@ -40,7 +33,7 @@ const Chat: FC<ChatProps> = ({ chat, user, typing }) => {
         {chat.map((message, index) => {
           const enhancedMessage = {
             ...message,
-            own: message.user?.id === user.id,
+            own: message.user?.id === user?.id,
           };
           return message.type === "server" ? (
             <ServerMessage key={index} {...enhancedMessage} />
