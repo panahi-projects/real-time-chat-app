@@ -1,14 +1,9 @@
-import Image from "next/image";
 import { send, upload } from "@/assets";
-import React, {
-  ChangeEvent,
-  Dispatch,
-  KeyboardEventHandler,
-  useState,
-} from "react";
-import { User } from "./ChatApplication";
+import Image from "next/image";
+import React, { Dispatch, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { ChatMessage } from "./Chat";
+import { User } from "./ChatApplication";
 
 interface InputProps {
   user: User;
@@ -18,19 +13,39 @@ interface InputProps {
 
 const Input: React.FC<InputProps> = ({ user, socket, setChat }) => {
   const [input, setInput] = useState("");
+  const uploadInput = useRef<HTMLInputElement | null>(null);
 
   const userTyping = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
   };
   const sendMessage = () => {
-    const msg: ChatMessage = {
-      content: input,
-      type: "text",
-      user,
-    };
-    socket.emit("send_message", msg);
-    setChat((prev) => [...prev, msg]);
-    setInput("");
+    if (input) {
+      const msg: ChatMessage = {
+        content: input,
+        type: "text",
+        user,
+      };
+      socket.emit("send_message", msg);
+      setChat((prev) => [...prev, msg]);
+      setInput("");
+    } else {
+      uploadInput.current?.click();
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    if (file?.type === "image/jpeg" || file?.type === "image/png") {
+      const img = URL.createObjectURL(file);
+      const msg: ChatMessage = {
+        content: img,
+        type: "image",
+        user,
+      };
+
+      setChat((prev) => [...prev, msg]);
+      socket.emit("send_message", msg);
+    }
   };
 
   return (
@@ -45,7 +60,12 @@ const Input: React.FC<InputProps> = ({ user, socket, setChat }) => {
         }
         value={input}
       />
-      <input className="hidden" type="file" />
+      <input
+        className="hidden"
+        type="file"
+        ref={uploadInput}
+        onChange={(e) => handleImageUpload(e)}
+      />
       <button
         onClick={sendMessage}
         className="w-full py-2 px-3 bg-sky-400 text-white font-fold rounded-md text-xl gradient md:w-1/12 md:text-2xl"

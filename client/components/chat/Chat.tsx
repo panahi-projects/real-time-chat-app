@@ -5,7 +5,7 @@ import { User } from "./ChatApplication";
 export interface ChatMessage {
   user: User | null;
   content: string;
-  type: "text" | "user" | "server" | null;
+  type: "text" | "image" | "user" | "server" | null;
   own?: boolean; // Added dynamically in the component
 }
 interface ChatProps {
